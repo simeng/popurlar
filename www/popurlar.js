@@ -4,9 +4,36 @@
         this.req = new XMLHttpRequest();
     };
 
+    Http.prototype.serialize = function(obj) {
+        var c = [];
+        for (var i in obj) {
+            c.push(encodeURIComponent(i) + '=' + encodeURIComponent(obj[i]));
+        }
+        return c.join("&");
+    };
+
+    Http.prototype.post = function(url, data, callback) {
+        this.req.onreadystatechange = function () {
+            var res = {};
+            var callback = callback || function() {};
+
+            if (this.readyState == 4) {
+                if (this.status == 200) {
+                    res.status = this.status;
+                    res.text = this.responseText;
+                    callback(res);
+                }
+            }
+        };
+        this.req.open("POST", url, true);
+        this.req.setRequestHeader("Content-type","application/x-www-form-urlencoded");
+        this.req.send(this.serialize(data));
+    };
+
     Http.prototype.get = function(url, data, callback) {
         this.req.onreadystatechange = function () {
-            var res = null;
+            var res = {};
+            var callback = callback || function() {};
 
             if (this.readyState == 4) {
                 if (this.status == 200) {
@@ -21,11 +48,12 @@
     };
 
     var Popurlar = function(settings) {
-        this.settings = settins;
+        this.settings = settings;
         this.alternatives = {};
 
         var http = new Http();
-        http.get('/track/', { 
+        // TODO: fix path
+        http.post('/track/', { 
                 project_id: this.settings.project_id
         }, function (res) {
             this.alternatives = res.text;
@@ -43,19 +71,18 @@
             var choice = Math.floor(Math.random() * this.alternatives[elements[i]].length);
             title.textContent = this.alternatives[elements[i]][choice];
             title.setAttribute('data-alternative-num', choice);
+        }
     };
 
-    window.popurlar = popurlar;
+    // Manually track a view of current page
+    Popurlar.prototype.track_view = function() {
+        var http = new Http();
+        // TODO: fix path
+        http.post('/track/', { 
+            project_id: this.settings.project_id,
+            url: document.location.href
+        });
+    };
+
+    window.Popurlar = Popurlar;
 })();
-
-
-/* Test */
-var pop = new Popurlar({
-    project_id: 1,
-    link_text_selector: 'a',
-    link_text_alternatives_selector: '.premable',
-});
-
-pop.randomize_link_text();
-pop.track_view(); 
-
