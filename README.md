@@ -19,3 +19,10 @@ Setup at bottom of `<body>` tag.
         })();
     </script>
 
+TODO
+====
+- Signed per-browser tracking cookie
+- Alternative text click tracking
+- Project admin panel
+- Stats panel
+
