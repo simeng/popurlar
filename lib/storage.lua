@@ -28,4 +28,16 @@ function storage.log_view(project_id, url)
     db:query(sql)
 end
 
+function storage.get_projects()
+    local sql = "SELECT project_id FROM views GROUP BY project_id"
+    local projects = db:query(sql)
+    return projects
+end
+
+function storage.get_project_views_24h(project_id)
+    local sql = "SELECT COUNT(*) views, url FROM views WHERE project_id = " .. ngx.quote_sql_str(project_id) .. " AND created > NOW() - INTERVAL 1 DAY GROUP BY url"
+    local views = db:query(sql)
+    return views
+end
+
 return storage

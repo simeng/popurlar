@@ -1,5 +1,15 @@
 #{include: 'header.html'}
 
-Stats and stuff
+<h1>Stats and stuff</h1>
+
+<h4>Last 24h activity</h4>
+
+<ul>
+#{ for k, project in ipairs(projects) do }
+    <li>
+    <a href="project/#{= project.project_id }">Project #{= project.project_id }</a>
+    </li>
+#{ end }
+</ul>
 
 #{include: 'footer.html'}
