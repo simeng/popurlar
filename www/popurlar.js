@@ -50,10 +50,11 @@
     var Popurlar = function(settings) {
         this.settings = settings;
         this.alternatives = {};
+        this.base = settings.base || "/";
 
         var http = new Http();
         // TODO: fix path
-        http.post('/track/', { 
+        http.post(this.base, { 
                 project_id: this.settings.project_id
         }, function (res) {
             this.alternatives = res.text;
@@ -78,7 +79,7 @@
     Popurlar.prototype.track_view = function() {
         var http = new Http();
         // TODO: fix path
-        http.post('/track/', { 
+        http.post(this.base, { 
             project_id: this.settings.project_id,
             url: document.location.href
         });

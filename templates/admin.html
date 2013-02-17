@@ -7,7 +7,7 @@
 <ul>
 #{ for k, project in ipairs(projects) do }
     <li>
-    <a href="project/#{= project.project_id }">Project #{= project.project_id }</a>
+    <a href="project/#{= project.id }">#{= project.title } ##{= project.id }</a>
     </li>
 #{ end }
 </ul>

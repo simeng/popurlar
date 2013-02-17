@@ -1,9 +1,18 @@
 {
+    "path": {
+        "base": "/popurlar"
+    },
     "db": {
-        "host": "127.0.0.1",
-        "port": 3306,
-        "database": "popurlar",
-        "user": "popurlar",
-        "password": "supersecritstuffs"
+        "archive": {
+            "host": "127.0.0.1",
+            "port": 3306,
+            "database": "popurlar",
+            "user": "popurlar",
+            "password": "supersecritstuffs"
+        },
+        "live": {
+            "type": "redis",
+            "socket": "unix:/var/run/redis/redis.sock"
+        }
     }
 }

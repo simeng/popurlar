@@ -20,8 +20,7 @@ local function admin_api_views(project_id)
     local tmp = storage.get_project_views_24h(project_id)
 
     ngx.header['Content-Type'] = 'application/json'
-    ngx.print(cjson.encode(tmp))
-    ngx.exit(ngx.OK)
+    return cjson.encode(tmp)
 end
 
 local function admin() 
@@ -29,8 +28,7 @@ local function admin()
     local tmp = storage.get_projects()
 
     ngx.header['Content-Type'] = 'text/html'
-    ngx.print(tpl.render(t, { projects = tmp }))
-    ngx.exit(ngx.OK)
+    return tpl.render(t, { projects = tmp })
 end
 
 local function admin_project(project_id) 
@@ -38,8 +36,7 @@ local function admin_project(project_id)
     local tmp = storage.get_project_views_24h(project_id)
 
     ngx.header['Content-Type'] = 'text/html'
-    ngx.print(tpl.render(t, { views = tmp, project_id = project_id }))
-    ngx.exit(ngx.OK)
+    return tpl.render(t, { views = tmp, project_id = project_id })
 end
 
 local function track()
@@ -59,10 +56,10 @@ local function track()
     storage.log_view(project_id, url)
 
     ngx.header['Content-Type'] = 'application/json'
-    ngx.print(json.encode({ status = 'ok' }))
-    ngx.exit(ngx.OK)
+    return json.encode({ status = 'ok' })
 end
 
+local BASE_PATH = config.path.base
 storage.init(config.db)
 
 ngx.req.read_body()
@@ -74,16 +71,22 @@ ngx.header['Content-Type'] = 'text/plain'
 -- Router
 --
 local routes = {
-    ['/track/?$'] = track,
-    ['/track/admin/?$'] = admin,
-    ['/track/admin/project/([0-9]+)/?$'] = admin_project,
-    ['/track/admin/api/views/project/([0-9]+)/?$'] = admin_api_views
+    ['/?$'] = track,
+    ['/admin/?$'] = admin,
+    ['/admin/project/([0-9]+)/?$'] = admin_project,
+    ['/admin/api/views/project/([0-9]+)/?$'] = admin_api_views
 }
 
 for path, view in pairs(routes) do
-    local match = string.match(ngx.var.request_uri, path)
+    local match = string.match(ngx.var.request_uri, BASE_PATH .. path)
     if match then
-        view(match)
+        local data, result = view(match)
+        ngx.print(data)
+        if result ~= nil then
+            ngx.exit(result)
+        else
+            ngx.exit(ngx.OK)
+        end
     end
 end
 
