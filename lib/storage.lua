@@ -47,11 +47,19 @@ function storage.init(config)
 end
 
 function storage.log_view(project_id, url)
-    local sql = "INSERT INTO views SET project_id = " .. ngx.quote_sql_str(project_id)
-    if url then
-        sql = sql .. ", url = " .. ngx.quote_sql_str(url)
-    end
-    archive:query(sql)
+    local view_id = live:incr('project:' .. project_id .. ':view_id')
+    local view_key = 'view:' .. view_id
+    local minute_key = 'date:' .. project_id .. ':' .. os.date("%Y-%m-%dT%H:%M", ngx.now())
+    local hour_key = 'date:' .. project_id .. ':' .. os.date("%Y-%m-%dT%H", ngx.now())
+    local data = {
+        project_id = project_id,
+        url = url
+    }
+
+    live:hmset(view_key, data)
+
+    live:lpush(minute_key, view_id)
+    live:lpush(hour_key, view_id)
 end
 
 function storage.get_projects()
